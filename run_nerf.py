@@ -1022,8 +1022,8 @@ def run_nerf():
     print('\n'.join(f'{k}={v}' for k, v in vars(args).items()))
 
     # Multi-GPU
-    #args.n_gpus = torch.cuda.device_count()
-    #print(f"Using {args.n_gpus} GPU(s).")
+    args.n_gpus = torch.cuda.device_count()
+    print(f"Using {args.n_gpus} GPU(s).")
 
     # Load data
     images, depths, valid_depths, poses, H, W, intrinsics, near, far, i_split, gt_depths, gt_valid_depths = load_custom_scene(args.data_dir)
@@ -1093,6 +1093,6 @@ def run_nerf():
         render_video(vposes, H, W, vintrinsics, str(0), args, render_kwargs_test)
 
 if __name__=='__main__':
-    #torch.set_default_tensor_type('torch.cuda.FloatTensor')
+    torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     run_nerf()
