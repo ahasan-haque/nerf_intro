@@ -21,7 +21,7 @@ from tqdm import tqdm, trange
 
 from model import NeRF, get_embedder, get_rays, precompute_quadratic_samples, sample_pdf, img2mse, mse2psnr, to8b, \
     compute_depth_loss, select_coordinates, to16b, resnet18_skip
-from data import create_random_subsets, load_scene, convert_depth_completion_scaling_to_m, \
+from data import create_random_subsets, load_custom_scene, convert_depth_completion_scaling_to_m, \
     convert_m_to_depth_completion_scaling, get_pretrained_normalize, resize_sparse_depth
 from train_utils import MeanTracker, update_learning_rate
 from metric import compute_rmse
@@ -981,12 +981,10 @@ def config_parser():
                         help='checkpoint directory')
 
     # data options
-    parser.add_argument("--scene_id", type=str, default="scene0710_00",
-                        help='scene identifier')
     parser.add_argument("--depth_prior_network_path", type=str, default="",
                         help='path to the depth prior network checkpoint to be used')
     parser.add_argument("--data_dir", type=str, default="",
-                        help='directory containing the scenes')
+                        help='directory containing the dataset')
 
     return parser
 
@@ -999,7 +997,7 @@ def run_nerf():
 
     if args.task == "train":
         if args.expname is None:
-            args.expname = "{}_{}".format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d_%H%M%S'), args.scene_id)
+            args.expname = "{}".format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d_%H%M%S'))
         args_file = os.path.join(args.ckpt_dir, args.expname, 'args.json')
         os.makedirs(os.path.join(args.ckpt_dir, args.expname), exist_ok=True)
         with open(args_file, 'w') as af:
@@ -1024,12 +1022,11 @@ def run_nerf():
     print('\n'.join(f'{k}={v}' for k, v in vars(args).items()))
 
     # Multi-GPU
-    args.n_gpus = torch.cuda.device_count()
-    print(f"Using {args.n_gpus} GPU(s).")
+    #args.n_gpus = torch.cuda.device_count()
+    #print(f"Using {args.n_gpus} GPU(s).")
 
     # Load data
-    scene_data_dir = os.path.join(args.data_dir, args.scene_id)
-    images, depths, valid_depths, poses, H, W, intrinsics, near, far, i_split, gt_depths, gt_valid_depths = load_scene(scene_data_dir)
+    images, depths, valid_depths, poses, H, W, intrinsics, near, far, i_split, gt_depths, gt_valid_depths = load_custom_scene(args.data_dir)
 
     i_train, i_val, i_test, i_video = i_split
 
@@ -1096,6 +1093,6 @@ def run_nerf():
         render_video(vposes, H, W, vintrinsics, str(0), args, render_kwargs_test)
 
 if __name__=='__main__':
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
+    #torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     run_nerf()
