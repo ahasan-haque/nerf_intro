@@ -90,7 +90,8 @@ def load_custom_scene(basedir):
                 for line in fp:
                     line = line.strip()
                     rgb_file_path = f'rgb/{line:>06}.png'
-                    depth_file_path = f'depth_d435/{line:>06}.png'
+                    #depth_file_path = f'depth_d435/{line:>06}.png'
+                    depth_file_path = f'_depth_gt/{line:>06}.png'
                     ground_truth_depth_file_path = f'_depth_gt/{line:>06}.png'
                     pose_path = f'_camera_pose/{line:>06}.txt'
                     img, depth = read_files(basedir, rgb_file_path, depth_file_path)

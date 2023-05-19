@@ -302,7 +302,7 @@ def render_images_with_metrics(count, indices, images, depths, valid_depths, pos
     return all_mean_metrics, res
 
 def write_images_with_metrics(images, mean_metrics, far, args, with_test_time_optimization=False):
-    result_dir = os.path.join(args.ckpt_dir, args.expname, "test_images_" + ("with_optimization_" if with_test_time_optimization else "") + args.scene_id)
+    result_dir = os.path.join(args.ckpt_dir, args.expname, "test_images_" + ("with_optimization_" if with_test_time_optimization else ""))
     os.makedirs(result_dir, exist_ok=True)
     for n, (rgb, depth) in enumerate(zip(images["rgbs"].permute(0, 2, 3, 1).cpu().numpy(), \
             images["depths"].permute(0, 2, 3, 1).cpu().numpy())):
@@ -796,7 +796,7 @@ def train_nerf(images, depths, valid_depths, poses, intrinsics, i_split, args, s
 
     # optimize nerf
     print('Begin')
-    N_iters = 500000 + 1
+    N_iters = 30000 + 1
     global_step = start
     start = start + 1
     for i in trange(start, N_iters):
@@ -866,7 +866,7 @@ def train_nerf(images, depths, valid_depths, poses, intrinsics, i_split, args, s
                 torchvision.utils.make_grid(images_train["depths"], nrow=1), \
                 torchvision.utils.make_grid(images_train["target_depths"], nrow=1)), 2), i)
             # compute validation metrics and visualize 8 validation images
-            mean_metrics_val, images_val = render_images_with_metrics(8, i_val, images, depths, valid_depths, \
+            mean_metrics_val, images_val = render_images_with_metrics(6, i_val, images, depths, valid_depths, \
                 poses, H, W, intrinsics, lpips_alex, args, render_kwargs_test)
             tb.add_scalars('mse', {'val': mean_metrics_val.get("img_loss")}, i)
             tb.add_scalars('psnr', {'val': mean_metrics_val.get("psnr")}, i)
